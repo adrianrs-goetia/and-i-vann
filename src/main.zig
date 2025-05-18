@@ -17,7 +17,8 @@ pub fn main() !void {
     const camera = cameraMod.initCamera();
 
     // Model
-    var duck = try duckMod.loadDuckModel();
+    var duck = try duckMod.loadDuck();
+    defer duckMod.unloadDuck(duck);
 
     // Game loop
     while (!raylib.windowShouldClose()) {
@@ -25,7 +26,7 @@ pub fn main() !void {
         raylib.beginDrawing();
         defer raylib.endDrawing();
 
-        raylib.clearBackground(raylib.Color.black);
+        raylib.clearBackground(raylib.Color.gray);
         raylib.drawFPS(10, 10);
         raylib.drawText("First raylib window with Zig", 100, 100, 30, raylib.Color.yellow);
         const raylibVersion = "raylib {s}" ++ raylib.RAYLIB_VERSION;
@@ -35,6 +36,7 @@ pub fn main() !void {
         camera.begin();
         defer camera.end();
         raylib.drawGrid(10, 1);
+        duck.update();
         duck.draw();
     }
 }
