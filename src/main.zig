@@ -1,0 +1,49 @@
+//! By convention, main.zig is where your main function lives in the case that
+//! you are building an executable. If you are making a library, the convention
+//! is to delete this file and start with root.zig instead.
+
+const raylib = @import("raylib");
+
+pub fn main() !void {
+    raylib.initWindow(800, 600, "Hello world");
+    raylib.setConfigFlags(.{ .window_resizable = true });
+    raylib.setTargetFPS(60);
+    while (!raylib.windowShouldClose()) {
+        raylib.beginDrawing();
+        defer raylib.endDrawing();
+
+        raylib.clearBackground(raylib.Color.black);
+        raylib.drawFPS(10, 10);
+
+        raylib.drawText("First raylib window with Zig", 100, 100, 30, raylib.Color.yellow);
+        const raylibVersion = "raylib {s}" ++ raylib.RAYLIB_VERSION;
+        raylib.drawText(raylibVersion, 100, 150, 20, raylib.Color.yellow);
+    }
+}
+
+test "simple test" {
+    var list = std.ArrayList(i32).init(std.testing.allocator);
+    defer list.deinit(); // Try commenting this out and see if zig detects the memory leak!
+    try list.append(42);
+    try std.testing.expectEqual(@as(i32, 42), list.pop());
+}
+
+test "use other module" {
+    try std.testing.expectEqual(@as(i32, 150), lib.add(100, 50));
+}
+
+test "fuzz example" {
+    const Context = struct {
+        fn testOne(context: @This(), input: []const u8) anyerror!void {
+            _ = context;
+            // Try passing `--fuzz` to `zig build test` and see if it manages to fail this test case!
+            try std.testing.expect(!std.mem.eql(u8, "canyoufindme", input));
+        }
+    };
+    try std.testing.fuzz(Context{}, Context.testOne, .{});
+}
+
+const std = @import("std");
+
+/// This imports the separate module containing `root.zig`. Take a look in `build.zig` for details.
+const lib = @import("andivann_lib");
