@@ -37,7 +37,6 @@ pub fn build(b: *std.Build) void {
     const raygui = raylib_dep.module("raygui"); // raygui module
     const raylib_artifact = raylib_dep.artifact("raylib"); // raylib C library
     exe.linkLibrary(raylib_artifact);
-    // exe.linkSystemLibrary("raylib");
     exe.linkSystemLibrary("GL");
     exe.linkSystemLibrary("X11");
     exe.linkSystemLibrary("Xi");
