@@ -49,7 +49,10 @@ const Movement = struct {
         m: *Movement,
         delta: f32,
     ) void {
-        m.linearPosition = @min(m.linearPosition + m.speed * delta, 1);
+        const distance = raylib.Vector3.length(m.startPosition.subtract(m.targetPosition));
+        const globalSpeed = m.speed / distance;
+
+        m.linearPosition = @min(m.linearPosition + (globalSpeed * delta), 1);
         const newPosition = m.startPosition.scale(1 - m.linearPosition).add(m.targetPosition.scale(m.linearPosition));
         m.currentPosition = newPosition;
     }
@@ -106,7 +109,7 @@ pub fn loadDuck() !Duck {
     const movement = try allocator.create(Movement);
     movement.* = Movement{
         .currentPosition = raylib.Vector3.zero(),
-        .speed = 1,
+        .speed = 10,
         .linearPosition = 0,
         .startPosition = raylib.Vector3.zero(),
         .targetPosition = raylib.Vector3.zero(),
