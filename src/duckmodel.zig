@@ -22,15 +22,13 @@ const Duck = struct {
         if (d.animator.active) {
             raylib.updateModelAnimation(d.model, d.animator.getActiveAnim(), d.animator.getCurrentFrame());
         }
-        _ = d.movement.updateMovement(delta);
+        const state = d.movement.updateMovement(delta);
+        d.animator.setAnimByMovementState(state);
     }
 
-    // pub fn setAnim(d: *Duck, a: AnimIndex) void {
-    //     d.animator.setAnim(a);
-    // }
-
     pub fn setTargetPosition(d: *Duck, target: Vector3) void {
-        _ = d.movement.setNewTargetPosition(target);
+        const state = d.movement.setNewTargetPosition(target);
+        d.animator.setAnimByMovementState(state);
     }
 };
 
@@ -112,34 +110,45 @@ const Movement = struct {
     }
 };
 
-const AnimIndex = enum(usize) {
-    ANIM_IDLE = 0,
-    ANIM_SWIM = 1,
-};
-
 const Animator = struct {
     active: bool,
-    activeIndex: usize,
+    activeIndex: AnimIndex,
     currentFrame: i32,
     anims: []raylib.ModelAnimation,
+
+    const AnimIndex = enum(usize) {
+        Idle = 0,
+        Swim = 1,
+    };
 
     fn toggleActive(a: *Animator) void {
         a.active = !a.active;
     }
 
     fn getActiveAnim(a: Animator) raylib.ModelAnimation {
-        return a.anims[a.activeIndex];
+        return a.anims[@intFromEnum(a.activeIndex)];
     }
 
-    // fn setAnim(a: *Animator, index: AnimIndex) void {
-    //     if (a.anims.len < index) {
-    //         return .{};
-    //     }
-    //     a.activeIndex = index;
-    // }
+    fn setAnimByMovementState(a: *Animator, s: Movement.State) void {
+        var index: ?AnimIndex = null;
+        switch (s) {
+            Movement.State.Idle => index = AnimIndex.Idle,
+            Movement.State.Moving => index = AnimIndex.Swim,
+            Movement.State.ReachedLocation => {},
+        }
+        a.mutateActiveIndex(index);
+    }
+
+    fn mutateActiveIndex(a: *Animator, index: ?AnimIndex) void {
+        if (index) |i| {
+            if (a.activeIndex != i) {
+                a.activeIndex = i;
+            }
+        }
+    }
 
     fn getCurrentFrame(a: *Animator) i32 {
-        const anim = &a.anims[a.activeIndex];
+        const anim = &a.anims[@intFromEnum(a.activeIndex)];
         const frameCount: i32 = @max(anim.frameCount, 1);
         a.currentFrame = @rem(a.currentFrame + 1, frameCount);
         return a.currentFrame;
@@ -163,7 +172,7 @@ pub fn loadDuck() !Duck {
         .scale = 3,
         .animator = Animator{
             .active = true,
-            .activeIndex = 0,
+            .activeIndex = Animator.AnimIndex.Idle,
             .currentFrame = 0,
             .anims = anims,
         },
