@@ -29,6 +29,9 @@ const Duck = struct {
     pub fn setTargetPosition(d: *Duck, target: Vector3) void {
         const state = d.movement.setNewTargetPosition(target);
         d.animator.setAnimByMovementState(state);
+
+        const angle = d.movement.getAngleToCachedTarget();
+        d.model.transform = raylib.Matrix.rotateY(-angle + (std.math.pi * 0.5));
     }
 };
 
@@ -62,6 +65,16 @@ const Movement = struct {
         return m.state;
     }
 
+    fn getAngleToCachedTarget(m: *const Movement) f32 {
+        const forward = Vector3{ .x = 1, .y = 0, .z = 0 };
+        const direction = Vector3.normalize(m.targetPosition.subtract(m.startPosition));
+        var angle = std.math.acos(direction.dotProduct(forward));
+        if (direction.z < 0) {
+            angle = (std.math.pi * 2) - angle;
+        }
+        return angle;
+    }
+
     fn updateMovement(
         m: *Movement,
         delta: f32,
@@ -79,7 +92,6 @@ const Movement = struct {
     fn setState(m: *Movement, new_state: State) bool {
         if (m.state != new_state) {
             m.state = new_state;
-            std.log.info("Duck new state {s}", .{m.state.toString()});
             return true;
         }
         return false;

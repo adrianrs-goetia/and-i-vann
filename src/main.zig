@@ -44,6 +44,8 @@ pub fn main() !void {
                 duck.setTargetPosition(clickPosition);
             }
             mouseclick.drawCube(clickPosition);
+
+            drawAxis();
         }
 
         raylib.drawFPS(10, 10);
@@ -51,4 +53,11 @@ pub fn main() !void {
         const raylibVersion = "raylib {s}" ++ raylib.RAYLIB_VERSION;
         raylib.drawText(raylibVersion, 100, 150, 20, raylib.Color.yellow);
     }
+}
+
+fn drawAxis() void {
+    const scalar = 10;
+    raylib.drawLine3D(raylib.Vector3.zero(), raylib.Vector3.init(1, 0, 0).scale(scalar), raylib.Color.red);
+    raylib.drawLine3D(raylib.Vector3.zero(), raylib.Vector3.init(0, 1, 0).scale(scalar), raylib.Color.yellow);
+    raylib.drawLine3D(raylib.Vector3.zero(), raylib.Vector3.init(0, 0, 1).scale(scalar), raylib.Color.blue);
 }
