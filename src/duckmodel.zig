@@ -11,6 +11,8 @@ const allocator = gpa.allocator();
 const file = "assets/duck2.glb";
 
 pub const Duck = struct {
+    const PositionOffset = Vector3{ .x = 0, .y = -1, .z = 0 };
+
     model: raylib.Model,
     scale: f32,
     animator: Animator,
@@ -60,7 +62,7 @@ const Animator = struct {
 
 const API = struct {
     pub fn draw(d: *Duck) void {
-        d.model.draw(d.movement.currentPosition, d.scale, raylib.Color.white);
+        d.model.draw(d.movement.currentPosition.add(Duck.PositionOffset), d.scale, raylib.Color.white);
     }
 
     pub fn update(d: *Duck, delta: f32) void {

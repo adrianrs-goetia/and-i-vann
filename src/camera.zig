@@ -4,7 +4,7 @@ const Vector3 = @import("raylib").Vector3;
 
 pub fn initCamera() Camera3D {
     return Camera3D{
-        .position = Vector3{ .x = -10, .y = 10, .z = 10 },
+        .position = Vector3{ .x = -10, .y = 18, .z = 10 },
         .target = Vector3.zero(),
         .fovy = 45,
         .projection = CameraProjection.perspective,

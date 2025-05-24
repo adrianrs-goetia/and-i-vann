@@ -5,13 +5,14 @@
 const std = @import("std");
 const raylib = @import("raylib");
 const duckMod = @import("duckmodel.zig");
+const waterMod = @import("water.zig");
 const cameraMod = @import("camera.zig");
 const mouseclick = @import("mouseclick.zig");
 const def = @import("definitions.zig");
 
 pub fn main() !void {
     // Init window
-    raylib.initWindow(800, 600, "Hello world");
+    raylib.initWindow(1400, 1000, "Hello world");
     defer raylib.closeWindow();
     raylib.setConfigFlags(.{ .window_resizable = true });
     raylib.setTargetFPS(60);
@@ -22,6 +23,9 @@ pub fn main() !void {
     // Model
     var duck = try duckMod.loadDuck();
     defer duckMod.unloadDuck(duck);
+
+    // Water
+    var water = try waterMod.createWaterPlane();
 
     // gizmo
     var clickPosition = raylib.Vector3{ .x = 0, .y = 0, .z = 0 };
@@ -36,17 +40,17 @@ pub fn main() !void {
             // Init draw3d
             camera.begin();
             defer camera.end();
-            raylib.drawGrid(10, 1);
+            water.draw();
             duck.update(raylib.getFrameTime());
             duck.draw();
 
-            if (raylib.isMouseButtonPressed(raylib.MouseButton.left)) {
+            if (raylib.isMouseButtonDown(raylib.MouseButton.left)) {
                 clickPosition = try mouseclick.planeCollision(camera);
                 duck.setTargetPosition(clickPosition);
             }
-            mouseclick.drawCube(clickPosition);
 
-            drawAxis();
+            // Degug help
+            // drawAxis();
         }
 
         raylib.drawFPS(10, 10);
