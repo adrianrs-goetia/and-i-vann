@@ -7,6 +7,7 @@ const raylib = @import("raylib");
 const duckMod = @import("duckmodel.zig");
 const cameraMod = @import("camera.zig");
 const mouseclick = @import("mouseclick.zig");
+const def = @import("definitions.zig");
 
 pub fn main() !void {
     // Init window
@@ -49,15 +50,12 @@ pub fn main() !void {
         }
 
         raylib.drawFPS(10, 10);
-        raylib.drawText("First raylib window with Zig", 100, 100, 30, raylib.Color.yellow);
-        const raylibVersion = "raylib {s}" ++ raylib.RAYLIB_VERSION;
-        raylib.drawText(raylibVersion, 100, 150, 20, raylib.Color.yellow);
     }
 }
 
 fn drawAxis() void {
     const scalar = 10;
-    raylib.drawLine3D(raylib.Vector3.zero(), raylib.Vector3.init(1, 0, 0).scale(scalar), raylib.Color.red);
-    raylib.drawLine3D(raylib.Vector3.zero(), raylib.Vector3.init(0, 1, 0).scale(scalar), raylib.Color.yellow);
-    raylib.drawLine3D(raylib.Vector3.zero(), raylib.Vector3.init(0, 0, 1).scale(scalar), raylib.Color.blue);
+    raylib.drawLine3D(raylib.Vector3.zero(), def.Forward.scale(scalar), raylib.Color.red);
+    raylib.drawLine3D(raylib.Vector3.zero(), def.Right.scale(scalar), raylib.Color.blue);
+    raylib.drawLine3D(raylib.Vector3.zero(), def.Up.scale(scalar), raylib.Color.green);
 }

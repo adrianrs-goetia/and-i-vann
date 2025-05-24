@@ -2,9 +2,21 @@
 const std = @import("std");
 const raylib = @import("raylib");
 const Vector3 = raylib.Vector3;
+const duck = @import("duckmodel.zig");
 
 pub const CollisionError = error{
     NoCollisionHit,
+};
+
+pub const ClickPosition = struct {
+    point: Vector3,
+    angleToDuck: f32,
+
+    // fn init(point: Vector3, m: *const duck.Movement) ClickPosition {
+    //     return ClickPosition{
+    //         point
+    //     };
+    // }
 };
 
 pub fn planeCollision(c: raylib.Camera3D) CollisionError!Vector3 {

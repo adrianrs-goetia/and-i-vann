@@ -1,47 +1,33 @@
 const std = @import("std");
+const def = @import("definitions.zig");
 const raylib = @import("raylib");
 const Vector2 = raylib.Vector2;
 const Vector3 = raylib.Vector3;
+const mod = @This();
 
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const allocator = gpa.allocator();
 
 const file = "assets/duck2.glb";
 
-const Duck = struct {
+pub const Duck = struct {
     model: raylib.Model,
     scale: f32,
     animator: Animator,
     movement: *Movement,
 
-    pub fn draw(d: Duck) void {
-        d.model.draw(d.movement.currentPosition, d.scale, raylib.Color.white);
-    }
-
-    pub fn update(d: *Duck, delta: f32) void {
-        if (d.animator.active) {
-            raylib.updateModelAnimation(d.model, d.animator.getActiveAnim(), d.animator.getCurrentFrame());
-        }
-        const state = d.movement.updateMovement(delta);
-        d.animator.setAnimByMovementState(state);
-    }
-
-    pub fn setTargetPosition(d: *Duck, target: Vector3) void {
-        const state = d.movement.setNewTargetPosition(target);
-        d.animator.setAnimByMovementState(state);
-
-        const angle = d.movement.getAngleToCachedTarget();
-        d.model.transform = raylib.Matrix.rotateY(-angle + (std.math.pi * 0.5));
-    }
+    pub usingnamespace API;
 };
 
-const Movement = struct {
+pub const Movement = struct {
     currentPosition: Vector3,
     speed: f32,
     state: State,
     linearMovementLocation: f32, // Where along the linear line (start -> target) it is.
     startPosition: Vector3,
     targetPosition: Vector3,
+
+    pub usingnamespace API;
 
     const State = enum {
         Idle,
@@ -56,9 +42,47 @@ const Movement = struct {
             }
         }
     };
+};
 
-    fn setNewTargetPosition(m: *Movement, target: Vector3) State {
-        _ = m.setState(State.Moving);
+const Animator = struct {
+    active: bool,
+    activeIndex: AnimIndex,
+    currentFrame: i32,
+    anims: []raylib.ModelAnimation,
+
+    pub usingnamespace API;
+
+    const AnimIndex = enum(usize) {
+        Idle = 0,
+        Swim = 1,
+    };
+};
+
+const API = struct {
+    pub fn draw(d: *Duck) void {
+        d.model.draw(d.movement.currentPosition, d.scale, raylib.Color.white);
+    }
+
+    pub fn update(d: *Duck, delta: f32) void {
+        if (d.animator.active) {
+            raylib.updateModelAnimation(d.model, d.animator.getActiveAnim(), d.animator.getCurrentFrame());
+        }
+        const state = d.movement.updateMovement(delta);
+        d.animator.setAnimByMovementState(state);
+    }
+
+    pub fn setTargetPosition(d: *Duck, target: Vector3) void {
+        const state = d.movement.setNewTargetPosition(target);
+        d.animator.setAnimByMovementState(state);
+        setModelYawAngle(&d.model, d.movement.getAngleToCachedTarget());
+    }
+
+    fn setModelYawAngle(m: *raylib.Model, angle: f32) void {
+        m.transform = raylib.Matrix.rotateY(-angle + (std.math.pi * 0.5));
+    }
+
+    fn setNewTargetPosition(m: *Movement, target: Vector3) Movement.State {
+        _ = m.setState(Movement.State.Moving);
         m.startPosition = m.currentPosition;
         m.linearMovementLocation = 0;
         m.targetPosition = target;
@@ -66,9 +90,8 @@ const Movement = struct {
     }
 
     fn getAngleToCachedTarget(m: *const Movement) f32 {
-        const forward = Vector3{ .x = 1, .y = 0, .z = 0 };
         const direction = Vector3.normalize(m.targetPosition.subtract(m.startPosition));
-        var angle = std.math.acos(direction.dotProduct(forward));
+        var angle = std.math.acos(direction.dotProduct(def.Forward));
         if (direction.z < 0) {
             angle = (std.math.pi * 2) - angle;
         }
@@ -78,18 +101,18 @@ const Movement = struct {
     fn updateMovement(
         m: *Movement,
         delta: f32,
-    ) State {
+    ) Movement.State {
         var state = m.state;
         switch (state) {
-            State.Idle => {},
-            State.Moving => state = moving(m, delta),
-            State.ReachedLocation => state = State.Idle,
+            Movement.State.Idle => {},
+            Movement.State.Moving => state = moving(m, delta),
+            Movement.State.ReachedLocation => state = Movement.State.Idle,
         }
         _ = m.setState(state);
         return m.state;
     }
 
-    fn setState(m: *Movement, new_state: State) bool {
+    fn setState(m: *Movement, new_state: Movement.State) bool {
         if (m.state != new_state) {
             m.state = new_state;
             return true;
@@ -97,7 +120,7 @@ const Movement = struct {
         return false;
     }
 
-    fn moving(m: *Movement, delta: f32) State {
+    fn moving(m: *Movement, delta: f32) Movement.State {
         const distance = calculateHorizontalDistance(m.startPosition, m.targetPosition);
         const globalSpeed = m.speed / distance;
 
@@ -109,9 +132,9 @@ const Movement = struct {
         const newDistance = calculateHorizontalDistance(m.currentPosition, m.targetPosition);
         const distanceMargin = 0.01;
         if (newDistance <= distanceMargin) {
-            return State.ReachedLocation;
+            return Movement.State.ReachedLocation;
         } else {
-            return State.Moving;
+            return Movement.State.Moving;
         }
     }
 
@@ -120,18 +143,6 @@ const Movement = struct {
         const target = Vector3.init(t_target.x, 0, t_target.z);
         return Vector3.length(start.subtract(target));
     }
-};
-
-const Animator = struct {
-    active: bool,
-    activeIndex: AnimIndex,
-    currentFrame: i32,
-    anims: []raylib.ModelAnimation,
-
-    const AnimIndex = enum(usize) {
-        Idle = 0,
-        Swim = 1,
-    };
 
     fn toggleActive(a: *Animator) void {
         a.active = !a.active;
@@ -142,16 +153,16 @@ const Animator = struct {
     }
 
     fn setAnimByMovementState(a: *Animator, s: Movement.State) void {
-        var index: ?AnimIndex = null;
+        var index: ?Animator.AnimIndex = null;
         switch (s) {
-            Movement.State.Idle => index = AnimIndex.Idle,
-            Movement.State.Moving => index = AnimIndex.Swim,
+            Movement.State.Idle => index = Animator.AnimIndex.Idle,
+            Movement.State.Moving => index = Animator.AnimIndex.Swim,
             Movement.State.ReachedLocation => {},
         }
         a.mutateActiveIndex(index);
     }
 
-    fn mutateActiveIndex(a: *Animator, index: ?AnimIndex) void {
+    fn mutateActiveIndex(a: *Animator, index: ?Animator.AnimIndex) void {
         if (index) |i| {
             if (a.activeIndex != i) {
                 a.activeIndex = i;
