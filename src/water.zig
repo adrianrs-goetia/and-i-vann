@@ -1,5 +1,6 @@
 const std = @import("std");
 const raylib = @import("raylib");
+const mouseclick = @import("mouseclick.zig");
 
 pub const WaterPlane = struct {
     pub const Size = 100;
@@ -17,9 +18,14 @@ pub const WaterPlane = struct {
 pub const API = struct {
     pub fn draw(w: *WaterPlane) void {
         w.material.shader.activate();
-        // raylib.drawPlane(WaterPlane.Position, WaterPlane.Plane, raylib.Color.white);
         w.mesh.draw(w.material, raylib.Matrix.identity());
         w.material.shader.deactivate();
+    }
+
+    pub fn mouseClick(w: *WaterPlane, m: mouseclick.ClickResult) void {
+        const locIndex = raylib.getShaderLocation(w.material.shader, "clickPosition");
+        const ptrToOpaque: *const anyopaque = @as(*const anyopaque, &m.point);
+        raylib.setShaderValue(w.material.shader, locIndex, ptrToOpaque, raylib.ShaderUniformDataType.vec3);
     }
 };
 

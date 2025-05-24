@@ -8,18 +8,11 @@ pub const CollisionError = error{
     NoCollisionHit,
 };
 
-pub const ClickPosition = struct {
+pub const ClickResult = struct {
     point: Vector3,
-    angleToDuck: f32,
-
-    // fn init(point: Vector3, m: *const duck.Movement) ClickPosition {
-    //     return ClickPosition{
-    //         point
-    //     };
-    // }
 };
 
-pub fn planeCollision(c: raylib.Camera3D) CollisionError!Vector3 {
+pub fn planeCollision(c: raylib.Camera3D) CollisionError!ClickResult {
     const ray = raylib.getScreenToWorldRay(raylib.getMousePosition(), c);
     const collision = raylib.getRayCollisionQuad(ray, //
         Vector3{ .x = 100, .y = 0, .z = 100 }, //
@@ -31,7 +24,7 @@ pub fn planeCollision(c: raylib.Camera3D) CollisionError!Vector3 {
         return CollisionError.NoCollisionHit;
     }
 
-    return collision.point;
+    return ClickResult{ .point = collision.point };
 }
 
 pub fn drawCube(v: Vector3) void {

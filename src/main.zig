@@ -27,9 +27,6 @@ pub fn main() !void {
     // Water
     var water = try waterMod.createWaterPlane();
 
-    // gizmo
-    var clickPosition = raylib.Vector3{ .x = 0, .y = 0, .z = 0 };
-
     // Game loop
     while (!raylib.windowShouldClose()) {
         // Init draw. Required for gui elements
@@ -45,8 +42,9 @@ pub fn main() !void {
             duck.draw();
 
             if (raylib.isMouseButtonDown(raylib.MouseButton.left)) {
-                clickPosition = try mouseclick.planeCollision(camera);
-                duck.setTargetPosition(clickPosition);
+                const clickResult = try mouseclick.planeCollision(camera);
+                duck.setTargetPosition(clickResult);
+                water.mouseClick(clickResult);
             }
 
             // Degug help

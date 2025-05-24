@@ -1,9 +1,9 @@
 const std = @import("std");
+const mouseclick = @import("mouseclick.zig");
 const def = @import("definitions.zig");
 const raylib = @import("raylib");
 const Vector2 = raylib.Vector2;
 const Vector3 = raylib.Vector3;
-const mod = @This();
 
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 const allocator = gpa.allocator();
@@ -73,8 +73,8 @@ const API = struct {
         d.animator.setAnimByMovementState(state);
     }
 
-    pub fn setTargetPosition(d: *Duck, target: Vector3) void {
-        const state = d.movement.setNewTargetPosition(target);
+    pub fn setTargetPosition(d: *Duck, target: mouseclick.ClickResult) void {
+        const state = d.movement.setNewTargetPosition(target.point);
         d.animator.setAnimByMovementState(state);
         setModelYawAngle(&d.model, d.movement.getAngleToCachedTarget());
     }
