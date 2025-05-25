@@ -1,3 +1,4 @@
+const mod = @This();
 const std = @import("std");
 const raylib = @import("raylib");
 const mouseclick = @import("mouseclick.zig");
@@ -12,22 +13,20 @@ pub const WaterPlane = struct {
     material: raylib.Material,
     mesh: raylib.Mesh,
 
-    pub usingnamespace API;
+    pub usingnamespace mod;
 };
 
-pub const API = struct {
-    pub fn draw(w: *WaterPlane) void {
-        w.material.shader.activate();
-        w.mesh.draw(w.material, raylib.Matrix.identity());
-        w.material.shader.deactivate();
-    }
+pub fn draw(w: *WaterPlane) void {
+    w.material.shader.activate();
+    w.mesh.draw(w.material, raylib.Matrix.identity());
+    w.material.shader.deactivate();
+}
 
-    pub fn mouseClick(w: *WaterPlane, m: mouseclick.ClickResult) void {
-        const locIndex = raylib.getShaderLocation(w.material.shader, "clickPosition");
-        const ptrToOpaque: *const anyopaque = @as(*const anyopaque, &m.point);
-        raylib.setShaderValue(w.material.shader, locIndex, ptrToOpaque, raylib.ShaderUniformDataType.vec3);
-    }
-};
+pub fn mouseClick(w: *WaterPlane, m: mouseclick.ClickResult) void {
+    const locIndex = raylib.getShaderLocation(w.material.shader, "clickPosition");
+    const ptrToOpaque: *const anyopaque = @as(*const anyopaque, &m.point);
+    raylib.setShaderValue(w.material.shader, locIndex, ptrToOpaque, raylib.ShaderUniformDataType.vec3);
+}
 
 pub fn createWaterPlane() !WaterPlane {
     const shader = try raylib.loadShader(WaterPlane.ShaderWs, WaterPlane.ShaderFs);
