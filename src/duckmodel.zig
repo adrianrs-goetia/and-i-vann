@@ -30,7 +30,7 @@ pub const Movement = struct {
     startPosition: Vector3,
     targetPosition: Vector3,
 
-    pub usingnamespace API;
+    pub usingnamespace mod;
 
     const State = enum {
         Idle,
@@ -53,7 +53,7 @@ const Animator = struct {
     currentFrame: i32,
     anims: []raylib.ModelAnimation,
 
-    pub usingnamespace API;
+    pub usingnamespace mod;
 
     const AnimIndex = enum(usize) {
         Idle = 0,
