@@ -37,16 +37,18 @@ pub fn build(b: *std.Build) void {
     const raygui = raylib_dep.module("raygui"); // raygui module
     const raylib_artifact = raylib_dep.artifact("raylib"); // raylib C library
     exe.linkLibrary(raylib_artifact);
-    exe.linkSystemLibrary("GL");
-    exe.linkSystemLibrary("X11");
-    exe.linkSystemLibrary("Xi");
-    exe.linkSystemLibrary("Xrandr");
-    exe.linkSystemLibrary("Xinerama");
-    exe.linkSystemLibrary("Xcursor");
-    exe.linkSystemLibrary("Xxf86vm");
-    exe.linkSystemLibrary("pthread");
-    exe.linkSystemLibrary("dl");
-    exe.linkSystemLibrary("m");
+    if (target.result.os.tag == std.Target.Os.Tag.linux) {
+        exe.linkSystemLibrary("GL");
+        exe.linkSystemLibrary("X11");
+        exe.linkSystemLibrary("Xi");
+        exe.linkSystemLibrary("Xrandr");
+        exe.linkSystemLibrary("Xinerama");
+        exe.linkSystemLibrary("Xcursor");
+        exe.linkSystemLibrary("Xxf86vm");
+        exe.linkSystemLibrary("pthread");
+        exe.linkSystemLibrary("dl");
+        exe.linkSystemLibrary("m");
+    }
     exe.root_module.addImport("raylib", raylib);
     exe.root_module.addImport("raygui", raygui);
 
