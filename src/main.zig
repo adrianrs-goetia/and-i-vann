@@ -8,6 +8,7 @@ const duckMod = @import("duckmodel.zig");
 const waterMod = @import("water.zig");
 const cameraMod = @import("camera.zig");
 const mouseclick = @import("mouseclick.zig");
+const lillypad = @import("lillypad.zig");
 const def = @import("definitions.zig");
 
 pub fn main() !void {
@@ -27,6 +28,9 @@ pub fn main() !void {
     // Water
     var water = try waterMod.createWaterPlane();
 
+    var lillypadsManager = try lillypad.initMod();
+    defer lillypadsManager.deinitMod();
+
     // Game loop
     while (!raylib.windowShouldClose()) {
         // Init draw. Required for gui elements
@@ -37,7 +41,9 @@ pub fn main() !void {
             // Init draw3d
             camera.begin();
             defer camera.end();
+
             water.draw();
+            try lillypadsManager.draw();
             duck.update(raylib.getFrameTime());
             duck.draw();
 
