@@ -14,44 +14,41 @@ struct WaterClick {
     vec3 position;
     float lifetime;
 };
+const int NumWaterClick = 20;
 
 // Uniforms
-uniform WaterClick waterclick;
+uniform WaterClick waterclicks[NumWaterClick];
 
 // Shader variables
 const vec4 oceanBlue = vec4(0.616, 0.929, 0.98, 1.0);
 const vec4 clickColor = vec4(0.994, 0.988, 0.98, 1.0);
 
-float rippleLine(float length, float maxLength, WaterClick wc)
+float rippleLine(float length, float lifetime)
 {
-    const float fadeSpeed = 2.0;
-    const float lengthMod = 1.0; // Thicker towards 0
-    return exp(-pow((length * lengthMod) - wc.lifetime, 2) * (10 - wc.lifetime) - (wc.lifetime * fadeSpeed));
+    const float fadeSpeed = 1.8;
+    const float lengthMod = 1.4; // Thicker towards 0
+    return exp(-pow((length * lengthMod) - lifetime, 2) * (10 - lifetime) - (lifetime * fadeSpeed));
 }
 
 // Interpolate the color for WaterClick to create the ripple effect
-vec4 colorInterpolation(WaterClick wc, vec4 baseColor)
+vec4 colorInterpolation(WaterClick[NumWaterClick] wcs, vec4 baseColor)
 {
-    const float l = length(fragPosition - wc.position);
-    const float maxLength = 8.8;
-    if (l < maxLength && wc.alive != 0)
+    // Interpolate between clickColor and baseColor based on lifetime
+    float blend = 0;
+    for (int i = 0; i < NumWaterClick; i++)
     {
-        const float blend = rippleLine(l, maxLength, wc);
-
-        // Interpolate between clickColor and baseColor based on lifetime
-        vec4 mixedBaseColor = baseColor * (1 - blend);
-
-        vec4 rippleColor = clickColor * (blend);
-
-        return mixedBaseColor + rippleColor;
+        if (wcs[i].alive != 0)
+        {
+            const float l = length(fragPosition - wcs[i].position);
+            blend += rippleLine(l, wcs[i].lifetime);
+        }
     }
-    else
-    {
-        return baseColor;
-    }
+
+    blend = clamp(blend, 0.0, 1.0);
+    return mix(baseColor, clickColor, blend);
 }
 
 void main()
 {
-    FragColor = colorInterpolation(waterclick, oceanBlue);
+    FragColor = colorInterpolation(waterclicks, oceanBlue);
 }
