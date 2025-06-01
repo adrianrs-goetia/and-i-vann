@@ -20,14 +20,16 @@ const int NumWaterClick = 20;
 uniform WaterClick waterclicks[NumWaterClick];
 
 // Shader variables
-const vec4 oceanBlue = vec4(0.616, 0.929, 0.98, 1.0);
+const vec4 oceanBlue = vec4(0.616, 0.829, 0.91, 1.0);
 const vec4 clickColor = vec4(0.994, 0.988, 0.98, 1.0);
 
-float rippleLine(float length, float lifetime)
+float rippleLine(float length, float t_lifetime)
 {
     const float fadeSpeed = 1.8;
     const float lengthMod = 1.4; // Thicker towards 0
-    return exp(-pow((length * lengthMod) - lifetime, 2) * (10 - lifetime) - (lifetime * fadeSpeed));
+    const int mod = 2;
+    const float lifetime = t_lifetime * mod;
+    return exp(-pow((length * lengthMod) - lifetime, 2) * ((10 * mod) - lifetime) - (lifetime * fadeSpeed));
 }
 
 // Interpolate the color for WaterClick to create the ripple effect
@@ -44,7 +46,7 @@ vec4 colorInterpolation(WaterClick[NumWaterClick] wcs, vec4 baseColor)
         }
     }
 
-    blend = clamp(blend, 0.0, 1.0);
+    blend = clamp(blend, 0.0, 2.0);
     return mix(baseColor, clickColor, blend);
 }
 
