@@ -33,6 +33,8 @@ pub fn main() !void {
 
     // Game loop
     while (!raylib.windowShouldClose()) {
+        const delta = raylib.getFrameTime();
+
         // Init draw. Required for gui elements
         raylib.beginDrawing();
         defer raylib.endDrawing();
@@ -42,12 +44,13 @@ pub fn main() !void {
             camera.begin();
             defer camera.end();
 
+            water.update(delta);
             water.draw();
             try lillypadsManager.draw();
-            duck.update(raylib.getFrameTime());
+            duck.update(delta);
             duck.draw();
 
-            if (raylib.isMouseButtonDown(raylib.MouseButton.left)) {
+            if (raylib.isMouseButtonPressed(raylib.MouseButton.left)) {
                 const clickResult = try mouseclick.planeCollision(camera);
                 duck.setTargetPosition(clickResult);
                 water.mouseClick(clickResult);
