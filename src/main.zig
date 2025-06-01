@@ -13,7 +13,7 @@ const def = @import("definitions.zig");
 
 pub fn main() !void {
     // Init window
-    raylib.initWindow(1400, 1000, "Hello world");
+    raylib.initWindow(1400, 1000, "And i vann");
     defer raylib.closeWindow();
     raylib.setConfigFlags(.{ .window_resizable = true });
     raylib.setTargetFPS(60);
@@ -60,7 +60,7 @@ pub fn main() !void {
             // drawAxis();
         }
 
-        raylib.drawFPS(10, 10);
+        // raylib.drawFPS(10, 10);
     }
 }
 
