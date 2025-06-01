@@ -67,6 +67,9 @@ const WaterClickContainer = struct {
     }
 
     fn setUniforms(wcc: *WaterClickContainer, shader: rl.Shader) !void {
+        const time: f32 = @as(f32, @floatCast(rl.getTime()));
+        rl.setShaderValue(shader, rl.getShaderLocation(shader, "iTime"), &time, rl.ShaderUniformDataType.float);
+        std.log.info("time: {d:}", .{rl.getTime()});
         for (0..Amount, &wcc.waterclicks) |i, *wc| {
             {
                 const text = try std.fmt.allocPrintZ(std.heap.page_allocator, "waterclicks[{}].alive", .{i});
