@@ -13,8 +13,6 @@ struct WaterClick {
     int alive;
     vec3 position;
     float lifetime;
-    float maxLifetime;
-    float strength;
 };
 
 // Uniforms
@@ -40,7 +38,7 @@ vec4 colorInterpolation(WaterClick wc, vec4 baseColor)
     {
         const float blend = rippleLine(l, maxLength, wc);
 
-        // Interpolate between clickColor and baseColor based on strength/lifetime
+        // Interpolate between clickColor and baseColor based on lifetime
         vec4 mixedBaseColor = baseColor * (1 - blend);
 
         vec4 rippleColor = clickColor * (blend);
