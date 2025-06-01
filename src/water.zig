@@ -45,6 +45,7 @@ const WaterClick = struct {
         rl.setShaderValue(shader, rl.getShaderLocation(shader, "waterclick.alive"), @as(*const anyopaque, &wc.alive), rl.ShaderUniformDataType.int);
         rl.setShaderValue(shader, rl.getShaderLocation(shader, "waterclick.position"), @as(*const anyopaque, &wc.position), rl.ShaderUniformDataType.vec3);
         rl.setShaderValue(shader, rl.getShaderLocation(shader, "waterclick.lifetime"), @as(*const anyopaque, &wc.lifetime), rl.ShaderUniformDataType.float);
+        rl.setShaderValue(shader, rl.getShaderLocation(shader, "waterclick.maxLifetime"), @as(*const anyopaque, &@as(f32, MaxLifetime)), rl.ShaderUniformDataType.float);
         rl.setShaderValue(shader, rl.getShaderLocation(shader, "waterclick.strength"), @as(*const anyopaque, &wc.getStrength()), rl.ShaderUniformDataType.float);
     }
 };
