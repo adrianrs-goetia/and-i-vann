@@ -18,7 +18,7 @@ pub const WaterPlane = struct {
 };
 
 const WaterClick = struct {
-    const MaxLifetime = 1.8;
+    const MaxLifetime = 6.8;
 
     alive: bool,
     position: rl.Vector3,
