@@ -45,7 +45,11 @@ pub fn initMod() !Manager {
         .instances = try gpa.create([num]Instance),
     };
     for (0..num, m.instances[0..]) |i, *inst| {
-        inst.* = Instance{ .position = rl.Vector2{ .x = @floatFromInt(i), .y = 1 }, .rotationYaw = @as(f32, @floatFromInt(rl.getRandomValue(0, 314))) / 100, .scale = @as(f32, @floatFromInt(rl.getRandomValue(0, 80))) / 10 };
+        inst.* = Instance{ //
+            .position = rl.Vector2{ .x = @floatFromInt(i), .y = 1 },
+            .rotationYaw = @as(f32, @floatFromInt(rl.getRandomValue(0, 314))) / 100,
+            .scale = @as(f32, @floatFromInt(rl.getRandomValue(0, 80))) / 10,
+        };
     }
     return m;
 }
