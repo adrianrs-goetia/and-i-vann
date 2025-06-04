@@ -21,13 +21,6 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    // This creates another `std.Build.Step.Compile`, but this one builds an executable
-    // rather than a static library.
-    const exe = b.addExecutable(.{
-        .name = "andivann",
-        .root_module = exe_mod,
-    });
-
     const raylib_dep = b.dependency("raylib_zig", .{
         .target = target,
         .optimize = optimize,
@@ -35,22 +28,18 @@ pub fn build(b: *std.Build) void {
     });
     const raylib = raylib_dep.module("raylib"); // main raylib module
     const raygui = raylib_dep.module("raygui"); // raygui module
+    exe_mod.addImport("raylib", raylib);
+    exe_mod.addImport("raygui", raygui);
+
+    // This creates another `std.Build.Step.Compile`, but this one builds an executable
+    // rather than a static library.
+    const exe = b.addExecutable(.{
+        .name = "andivann",
+        .root_module = exe_mod,
+    });
+
     const raylib_artifact = raylib_dep.artifact("raylib"); // raylib C library
     exe.linkLibrary(raylib_artifact);
-    if (target.result.os.tag == std.Target.Os.Tag.linux) {
-        exe.linkSystemLibrary("GL");
-        exe.linkSystemLibrary("X11");
-        exe.linkSystemLibrary("Xi");
-        exe.linkSystemLibrary("Xrandr");
-        exe.linkSystemLibrary("Xinerama");
-        exe.linkSystemLibrary("Xcursor");
-        exe.linkSystemLibrary("Xxf86vm");
-        exe.linkSystemLibrary("pthread");
-        exe.linkSystemLibrary("dl");
-        exe.linkSystemLibrary("m");
-    }
-    exe.root_module.addImport("raylib", raylib);
-    exe.root_module.addImport("raygui", raygui);
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
@@ -81,10 +70,17 @@ pub fn build(b: *std.Build) void {
     run_step.dependOn(&run_cmd.step);
 
     // TESTS
-    const exe_unit_tests = b.addTest(.{
-        .root_module = exe_mod,
-    });
-    const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
     const test_step = b.step("test", "Run unit tests");
-    test_step.dependOn(&run_exe_unit_tests.step);
+    test_step.dependOn(&b.addRunArtifact(b.addTest(.{
+        .root_source_file = b.path("src/main.zig"),
+        .target = target,
+        .optimize = optimize,
+    })).step);
+    const poissonDiscTest = b.addTest(.{
+        .root_source_file = b.path("src/poissonDiskSampling.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    poissonDiscTest.root_module.addImport("raylib", raylib);
+    test_step.dependOn(&b.addRunArtifact(poissonDiscTest).step);
 }
